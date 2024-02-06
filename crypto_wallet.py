@@ -17,6 +17,9 @@ from web3 import Account
 from web3 import middleware
 from web3.gas_strategies.time_based import medium_gas_price_strategy
 
+### added imports
+from web3 import Web3
+w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:7545'))
 ################################################################################
 # Wallet functionality
 
@@ -55,14 +58,14 @@ def get_balance(w3, address):
 def send_transaction(w3, account, to, wage):
     """Send an authorized transaction to the Ganache blockchain."""
     # Set gas price strategy
-    w3.eth.setGasPriceStrategy(medium_gas_price_strategy)
+    w3.eth.set_gas_price_strategy(medium_gas_price_strategy)
 
     # Convert eth amount to Wei
     # value = w3.toWei(wage, "ether")
     value = w3.to_wei(wage, "ether")
 
     # Calculate gas estimate
-    gasEstimate = w3.eth.estimateGas(
+    gas_estimate = w3.eth.estimate_gas(
         {"to": to, "from": account.address, "value": value}
     )
 
@@ -71,13 +74,13 @@ def send_transaction(w3, account, to, wage):
         "to": to,
         "from": account.address,
         "value": value,
-        "gas": gasEstimate,
-        "gasPrice": 0,
-        "nonce": w3.eth.getTransactionCount(account.address),
+        "gas": gas_estimate,
+        "gasPrice": 875000000,
+        "nonce": w3.eth.get_transaction_count(account.address),
     }
 
     # Sign the raw transaction with ethereum account
-    signed_tx = account.signTransaction(raw_tx)
+    signed_tx = account.sign_transaction(raw_tx)
 
     # Send the signed transactions
-    return w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+    return w3.eth.send_raw_transaction(signed_tx.rawTransaction)
